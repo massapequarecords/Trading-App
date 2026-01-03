@@ -1,14 +1,18 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>MaxPain Pro - Advanced AI Trading</title>
+
+    <!-- Font Awesome (optional; fallback exists if this fails) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- React + Babel for quick demo -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -78,6 +82,7 @@
         .badge-bear { background: rgba(255, 51, 102, 0.15); color: var(--accent-danger); }
         .ai-box { background: linear-gradient(135deg, rgba(0, 255, 136, 0.05), rgba(0, 153, 255, 0.05));
             border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 12px; padding: 1.5rem; margin: 1rem 0; }
+        .icon { display:inline-flex; align-items:center; justify-content:center; line-height:1; font-size:1.05rem; }
         @media (max-width: 768px) {
             .header { flex-direction: column; }
             .content { padding: 1rem; }
@@ -88,472 +93,591 @@
 <body>
     <div class="bg-grid"></div>
     <div id="root"></div>
-    <script type="text/babel">
-        const { useState, useEffect } = React;
 
-```
-    // API CONFIG
-    const APIS = {
-        twelve: { key: 'c7ab348043d54432b00b5ebce7574a7c', name: 'TwelveData', limit: 800 },
-        finnhub: { key: 'd5cpoahr01qvl80loeo0d5cpoahr01qvl80loeog', name: 'Finnhub', limit: 3600 },
-        polygon: { key: 'VxuN5ENI_BpLPIYAIy1P6i7gysU9SPca', name: 'Polygon', limit: 300 },
-        alpha: { key: '4WG2HRRESHMYFVNB', name: 'AlphaVantage', limit: 25 }
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+/*
+  --- API CONFIG ---
+  For each provider put an array of keys you control (rotate across them).
+  Add any new keys into the arrays below.
+*/
+const APIS = {
+    twelve: { keys: ['c7ab348043d54432b00b5ebce7574a7c', /* add more twelve keys here */], name: 'TwelveData', limit: 800 },
+    finnhub: { keys: ['d5cpoahr01qvl80loeo0d5cpoahr01qvl80loeog', /* add more finnhub keys here */], name: 'Finnhub', limit: 3600 },
+    polygon: { keys: ['VxuN5ENI_BpLPIYAIy1P6i7gysU9SPca', /* add more polygon keys here */], name: 'Polygon', limit: 300 },
+    alpha: { keys: ['4WG2HRRESHMYFVNB', /* add more AlphaVantage keys here */], name: 'AlphaVantage', limit: 25 }
+};
+
+// track which key index to use next for each provider
+const providerState = {
+    twelve: { idx: 0 },
+    finnhub: { idx: 0 },
+    polygon: { idx: 0 },
+    alpha: { idx: 0 }
+};
+
+// simple call counters
+let calls = { twelve: 0, finnhub: 0, polygon: 0, alpha: 0 };
+
+// provider priority order - it will try each provider in this order and each provider's keys
+const PROVIDER_ORDER = ['twelve', 'finnhub', 'polygon', 'alpha'];
+
+/* Small Icon component with fallback emoji so missing icon fonts don't break UI */
+function Icon({ name, className = '' }) {
+    const map = {
+        'chart-column': '📊',
+        'chart-line': '📈',
+        'bell': '🔔',
+        'search': '🔎',
+        'check': '✅',
+        'xmark': '❌',
+        'brain': '🧠'
     };
-    
-    let activeAPI = 'twelve';
-    let calls = { twelve: 0, finnhub: 0, polygon: 0, alpha: 0 };
-    
-    const fetchPrice = async (symbol) => {
-        const methods = [
-            async () => {
+    // If FontAwesome is loaded, still pass through a <i> so style matches.
+    // Simple heuristic: check for the .fa stylesheet presence
+    const hasFA = !!document.querySelector('link[href*="font-awesome"], link[href*="fontawesome"], link[href*="cdnjs.cloudflare.com/ajax/libs/font-awesome"]');
+    if (hasFA) {
+        // map to closest FA class names for backwards compatibility
+        const faMap = {
+            'chart-column': 'fa-chart-column',
+            'chart-line': 'fa-chart-line',
+            'bell': 'fa-bell',
+            'search': 'fa-search',
+            'check': 'fa-check',
+            'xmark': 'fa-xmark',
+            'brain': 'fa-brain'
+        };
+        const faClass = faMap[name] || 'fa-circle';
+        return <i className={`fas ${faClass} icon ${className}`} aria-hidden="true"></i>;
+    }
+    // fallback to emoji
+    return <span className={`icon ${className}`} aria-hidden="true">{map[name] || '•'}</span>;
+}
+
+/* Helper: run the provider-specific request with key rotation for that provider */
+async function tryProviderRequest(provider, symbol) {
+    const cfg = APIS[provider];
+    const keys = cfg.keys || [];
+    if (!keys.length) throw new Error(`${provider} has no keys configured`);
+
+    // Try each key for this provider (start from providerState[provider].idx)
+    for (let attempt = 0; attempt < keys.length; attempt++) {
+        const keyIndex = (providerState[provider].idx + attempt) % keys.length;
+        const key = keys[keyIndex];
+
+        try {
+            // Provider-specific request logic
+            if (provider === 'twelve') {
                 const s = symbol.includes('-USD') ? symbol.replace('-USD', '/USD') : symbol;
-                const r = await fetch(`https://api.twelvedata.com/quote?symbol=${s}&apikey=${APIS.twelve.key}`);
+                const r = await fetch(`https://api.twelvedata.com/quote?symbol=${encodeURIComponent(s)}&apikey=${encodeURIComponent(key)}`);
                 const d = await r.json();
-                if (d.price) {
+                if (d && d.price) {
+                    // rotate index so next time we start after this key
+                    providerState[provider].idx = (keyIndex + 1) % keys.length;
                     calls.twelve++;
                     return {
                         success: true, symbol, price: +d.price, prev: +(d.previous_close || d.price),
                         change: +(d.change || 0), changePct: +(d.percent_change || 0),
                         volume: +(d.volume || 0), high: +(d.high || d.price), low: +(d.low || d.price),
-                        source: 'TwelveData'
+                        source: cfg.name
                     };
                 }
-                throw new Error('Invalid');
-            },
-            async () => {
+                // sometimes twelvedata returns an error object
+                if (d && d.status === 'error') throw new Error(d.message || 'TwelveData error');
+                throw new Error('TwelveData returned invalid data');
+            }
+
+            if (provider === 'finnhub') {
                 const s = symbol.includes('-USD') ? `BINANCE:${symbol.replace('-USD', 'USDT')}` : symbol;
-                const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${s}&token=${APIS.finnhub.key}`);
+                const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(s)}&token=${encodeURIComponent(key)}`);
                 const d = await r.json();
-                if (d.c && d.c > 0) {
+                if (d && d.c && d.c > 0) {
+                    providerState[provider].idx = (keyIndex + 1) % keys.length;
                     calls.finnhub++;
                     return {
                         success: true, symbol, price: d.c, prev: d.pc, change: d.d, changePct: d.dp,
-                        volume: 0, high: d.h, low: d.l, source: 'Finnhub'
+                        volume: 0, high: d.h, low: d.l, source: cfg.name
                     };
                 }
-                throw new Error('Invalid');
+                throw new Error('Finnhub returned invalid data');
             }
-        ];
-        
-        for (const fn of methods) {
-            try {
-                const result = await fn();
-                return result;
-            } catch (e) {}
-        }
-        return { success: false, error: 'All APIs failed' };
-    };
-    
-    const calcRSI = (prices, period = 14) => {
-        if (prices.length < period + 1) return { value: 50, signal: 'NEUTRAL' };
-        let gains = 0, losses = 0;
-        for (let i = 1; i <= period; i++) {
-            const chg = prices[i] - prices[i - 1];
-            chg > 0 ? gains += chg : losses -= chg;
-        }
-        const rsi = 100 - (100 / (1 + (gains / period) / (losses / period || 0.0001)));
-        return {
-            value: Math.round(rsi * 100) / 100,
-            signal: rsi < 30 ? 'BUY' : rsi > 70 ? 'SELL' : 'NEUTRAL'
-        };
-    };
-    
-    const detectPatterns = (prices) => {
-        const patterns = [];
-        if (prices.length >= 7) {
-            const [p1, p2, p3, p4, p5, p6, p7] = prices.slice(-7);
-            if (p2 > p1 && p2 > p3 && p4 > p2 && p4 > p3 && p4 > p5 && 
-                p6 > p5 && p6 > p7 && Math.abs(p2 - p6) / p2 < 0.03) {
-                patterns.push({
-                    name: 'Head & Shoulders', type: 'bearish', conf: 82 + Math.random() * 12,
-                    target: p7 * 0.90, stop: p4 * 1.02
-                });
+
+            if (provider === 'polygon') {
+                // attempt stock quote endpoint first
+                try {
+                    const r = await fetch(`https://api.polygon.io/v1/last_quote/stocks/${encodeURIComponent(symbol)}?apiKey=${encodeURIComponent(key)}`);
+                    const d = await r.json();
+                    if (d && (d.last || d.last && d.last.price) || (typeof d.last === 'object' && d.last.price)) {
+                        // polygon sometimes returns {last:{price:...}} or {last:{...}} structure
+                        const price = d.last && d.last.price ? d.last.price : (d.last ? d.last : (d.lastTrade ? d.lastTrade.price : null));
+                        if (price) {
+                            providerState[provider].idx = (keyIndex + 1) % keys.length;
+                            calls.polygon++;
+                            return {
+                                success: true, symbol, price: +price, prev: +price, change: 0, changePct: 0,
+                                volume: 0, high: +price, low: +price, source: cfg.name
+                            };
+                        }
+                    }
+                } catch (_) {
+                    // fallback to crypto attempt
+                }
+
+                // try polygon crypto route for symbols like BTC-USD
+                if (symbol.includes('-')) {
+                    const [base, quote] = symbol.split('-').map(s => s.replace(/[^A-Za-z]/g,'').toUpperCase());
+                    try {
+                        const r2 = await fetch(`https://api.polygon.io/v1/last/crypto/${encodeURIComponent(base)}/${encodeURIComponent(quote)}?apiKey=${encodeURIComponent(key)}`);
+                        const d2 = await r2.json();
+                        if (d2 && d2.price) {
+                            providerState[provider].idx = (keyIndex + 1) % keys.length;
+                            calls.polygon++;
+                            return {
+                                success: true, symbol, price: +d2.price, prev: +d2.price, change: 0, changePct: 0,
+                                volume: 0, high: +d2.price, low: +d2.price, source: cfg.name
+                            };
+                        }
+                    } catch (e) { /* ignore and continue */ }
+                }
+
+                throw new Error('Polygon returned invalid data');
             }
-        }
-        if (prices.length >= 10) {
-            const lows = prices.slice(-10).sort((a, b) => a - b);
-            if (Math.abs(lows[0] - lows[1]) / lows[0] < 0.02) {
-                patterns.push({
-                    name: 'Double Bottom', type: 'bullish', conf: 76 + Math.random() * 14,
-                    target: lows[0] * 1.10, stop: lows[0] * 0.96
-                });
+
+            if (provider === 'alpha') {
+                // Alpha Vantage global quote
+                // For stocks: &function=GLOBAL_QUOTE&symbol=IBM
+                // For crypto it can be function=DIGITAL_CURRENCY_INTRADAY but that's more complex.
+                const r = await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${encodeURIComponent(symbol)}&apikey=${encodeURIComponent(key)}`);
+                const d = await r.json();
+                if (d && d['Global Quote'] && d['Global Quote']['05. price']) {
+                    const p = parseFloat(d['Global Quote']['05. price']);
+                    const prev = parseFloat(d['Global Quote']['08. previous close'] || p);
+                    providerState[provider].idx = (keyIndex + 1) % keys.length;
+                    calls.alpha++;
+                    return {
+                        success: true, symbol, price: p, prev, change: +(p - prev), changePct: +(((p - prev) / (prev || p)) * 100),
+                        volume: +(d['Global Quote']['06. volume'] || 0), high: p, low: p, source: cfg.name
+                    };
+                }
+                // Basic fallback: Alpha sometimes returns "Note" about call frequency
+                if (d && (d.Note || d['Error Message'])) throw new Error(d.Note || d['Error Message'] || 'AlphaVantage rate/limit error');
+                throw new Error('AlphaVantage returned invalid data');
             }
+
+        } catch (err) {
+            // Try next key for same provider
+            // log for debugging
+            console.warn(`[${provider}] key idx ${keyIndex} failed for ${symbol}: ${err.message}`);
+            // continue to next key attempt
         }
-        return patterns;
+    } // end keys loop
+
+    // if we get here, no key succeeded for this provider
+    throw new Error(`${provider} all keys failed`);
+}
+
+/* Top-level fetchPrice: tries providers in order, each with its key rotation */
+const fetchPrice = async (symbol) => {
+    for (const provider of PROVIDER_ORDER) {
+        try {
+            const res = await tryProviderRequest(provider, symbol);
+            if (res && res.success) return res;
+        } catch (e) {
+            // provider failed: try next provider
+            console.warn(`Provider ${provider} failed for ${symbol}: ${e.message}`);
+        }
+    }
+    return { success: false, error: 'All APIs failed or returned invalid data' };
+};
+
+/* rest of your original utility functions: RSI, patterns, etc. */
+const calcRSI = (prices, period = 14) => {
+    if (!prices || prices.length < period + 1) return { value: 50, signal: 'NEUTRAL' };
+    let gains = 0, losses = 0;
+    for (let i = 1; i <= period; i++) {
+        const chg = prices[i] - prices[i - 1];
+        if (chg > 0) gains += chg; else losses -= chg;
+    }
+    const avgGain = gains / period;
+    const avgLoss = (losses || 0.0001) / period;
+    const rs = avgGain / (avgLoss || 0.0001);
+    const rsi = 100 - (100 / (1 + rs));
+    return {
+        value: Math.round(rsi * 100) / 100,
+        signal: rsi < 30 ? 'BUY' : rsi > 70 ? 'SELL' : 'NEUTRAL'
     };
-    
-    const genPrediction = (price, maxPain, rsi) => {
-        const delta = (maxPain - price) / price;
-        let conf = 60 + Math.abs(delta) * 100;
-        if (rsi.value < 30 && delta > 0) conf += 15;
-        if (rsi.value > 70 && delta < 0) conf += 15;
-        conf = Math.min(conf, 95);
-        
-        return {
-            target: price * (1 + delta * 0.7),
-            conf: Math.round(conf),
-            dir: delta > 0 ? 'BULLISH' : 'BEARISH',
-            reason: `Max pain ${(delta * 100).toFixed(1)}% ${delta > 0 ? 'above' : 'below'} • RSI ${rsi.value.toFixed(0)} (${rsi.signal})`
-        };
-    };
-    
-    const genPrices = (cur, n = 50) => {
-        const p = [cur];
-        for (let i = 1; i < n; i++) p.unshift(p[0] * (1 + (Math.random() - 0.5) * 0.05));
-        return p;
-    };
-    
-    const genMaxPain = (price, weeks) => {
-        const v = (2 + Math.random() * 3) / 100;
-        const w = Math.max(0.3, 1 - weeks * 0.1);
-        return Math.round(price * (1 + v * w * (Math.random() > 0.5 ? 1 : -1)) * 100) / 100;
-    };
-    
-    const getExpDates = () => {
-        const d = [];
-        const now = new Date();
-        for (let i = 1; i <= 12; i++) {
-            const f = new Date(now);
-            f.setDate(now.getDate() + i * 7);
-            d.push({
-                label: i === 1 ? 'This Week' : `${i} Week${i > 1 ? 's' : ''}`,
-                value: `${i}w`,
-                date: f.toLocaleDateString(),
-                weeks: i
+};
+
+const detectPatterns = (prices) => {
+    const patterns = [];
+    if (!prices) return patterns;
+    if (prices.length >= 7) {
+        const [p1, p2, p3, p4, p5, p6, p7] = prices.slice(-7);
+        if (p2 > p1 && p2 > p3 && p4 > p2 && p4 > p3 && p4 > p5 &&
+            p6 > p5 && p6 > p7 && Math.abs(p2 - p6) / p2 < 0.03) {
+            patterns.push({
+                name: 'Head & Shoulders', type: 'bearish', conf: 82 + Math.random() * 12,
+                target: p7 * 0.90, stop: p4 * 1.02
             });
         }
-        return d;
-    };
-    
-    function App() {
-        const [tab, setTab] = useState('dash');
-        const [alerts, setAlerts] = useState([]);
-        
-        return (
-            <div className="app">
-                <div className="header">
-                    <div className="logo">⚡ MaxPain Pro</div>
-                    <div className="nav">
-                        <button className={`nav-btn ${tab === 'dash' ? 'active' : ''}`} onClick={() => setTab('dash')}>
-                            <i className="fas fa-chart-column"></i> Dashboard
-                        </button>
-                        <button className={`nav-btn ${tab === 'crypto' ? 'active' : ''}`} onClick={() => setTab('crypto')}>
-                            <i className="fas fa-chart-line"></i> Crypto
-                        </button>
-                        <button className={`nav-btn ${tab === 'alerts' ? 'active' : ''}`} onClick={() => setTab('alerts')}>
-                            <i className="fas fa-bell"></i> Alerts ({alerts.length})
-                        </button>
-                    </div>
-                </div>
-                <div className="content">
-                    {tab === 'dash' && <Dashboard setAlerts={setAlerts} />}
-                    {tab === 'crypto' && <Crypto />}
-                    {tab === 'alerts' && <Alerts alerts={alerts} />}
-                </div>
-            </div>
-        );
     }
-    
-    function Dashboard({ setAlerts }) {
-        const [sym, setSym] = useState('');
-        const [data, setData] = useState(null);
-        const [loading, setLoading] = useState(false);
-        const [error, setError] = useState(null);
-        const [exp, setExp] = useState('1w');
-        
-        const exps = getExpDates();
-        
-        const search = async () => {
-            if (!sym.trim()) return;
-            setLoading(true);
-            setError(null);
-            
-            try {
-                const res = await fetchPrice(sym);
-                if (!res.success) {
-                    setError(res.error);
-                    setLoading(false);
-                    return;
-                }
-                
-                const prices = genPrices(res.price);
-                const maxPains = {};
-                exps.forEach(e => maxPains[e.value] = genMaxPain(res.price, e.weeks));
-                
-                const patterns = detectPatterns(prices);
-                const rsi = calcRSI(prices);
-                const pred = genPrediction(res.price, maxPains[exp], rsi);
-                
-                setData({ ...res, maxPains, patterns, rsi, pred });
-                
-                const mp = maxPains[exp];
-                const delta = ((mp - res.price) / res.price) * 100;
-                if (Math.abs(delta) > 3) {
-                    setAlerts(prev => [{
-                        id: Date.now(),
-                        sym: sym.toUpperCase(),
-                        msg: `Max pain ${Math.abs(delta).toFixed(2)}% ${delta > 0 ? 'above' : 'below'} price`,
-                        conf: pred.conf,
-                        time: new Date().toLocaleTimeString()
-                    }, ...prev.slice(0, 19)]);
-                }
-            } catch (e) {
-                setError(e.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-        
-        return (
-            <div>
-                <div className="search">
-                    <input
-                        className="input"
-                        placeholder="Enter ticker (AAPL, GME, TSLA)"
-                        value={sym}
-                        onChange={(e) => setSym(e.target.value.toUpperCase())}
-                        onKeyPress={(e) => e.key === 'Enter' && search()}
-                    />
-                    <button className="btn btn-primary" onClick={search} disabled={loading}>
-                        <i className="fas fa-search"></i>
-                        {loading ? 'Loading...' : 'Analyze'}
-                    </button>
-                </div>
-                
-                {error && (
-                    <div className="alert alert-error">
-                        <i className="fas fa-xmark"></i>
-                        <div>{error}</div>
-                    </div>
-                )}
-                
-                {loading && <div className="loading"><div className="spinner"></div></div>}
-                
-                {data && (
-                    <div>
-                        <div className="alert alert-success">
-                            <i className="fas fa-check"></i>
-                            <div>Loaded {data.symbol} • {data.source} • {new Date().toLocaleTimeString()}</div>
-                        </div>
-                        
-                        <div className="grid">
-                            <div className="stat">
-                                <div className="stat-label">Price</div>
-                                <div className="stat-value">${data.price.toFixed(2)}</div>
-                                <div className={`stat-change ${data.change >= 0 ? 'positive' : 'negative'}`}>
-                                    {data.change >= 0 ? '▲' : '▼'} {Math.abs(data.changePct).toFixed(2)}%
-                                </div>
-                            </div>
-                            <div className="stat">
-                                <div className="stat-label">Max Pain</div>
-                                <div className="stat-value">${data.maxPains[exp].toFixed(2)}</div>
-                                <div className={`stat-change ${data.maxPains[exp] > data.price ? 'positive' : 'negative'}`}>
-                                    {((data.maxPains[exp] - data.price) / data.price * 100).toFixed(2)}% Δ
-                                </div>
-                            </div>
-                            <div className="stat">
-                                <div className="stat-label">RSI</div>
-                                <div className="stat-value">{data.rsi.value.toFixed(1)}</div>
-                                <div className="stat-change">{data.rsi.signal}</div>
-                            </div>
-                            <div className="stat">
-                                <div className="stat-label">AI Confidence</div>
-                                <div className="stat-value">{data.pred.conf}%</div>
-                                <div className={`stat-change ${data.pred.dir === 'BULLISH' ? 'positive' : 'negative'}`}>
-                                    {data.pred.dir}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div className="card">
-                            <div className="card-header">Expirations</div>
-                            <div style={{display: 'flex', gap: '0.5rem', flexWrap: 'wrap'}}>
-                                {exps.map(e => (
-                                    <button
-                                        key={e.value}
-                                        className={`btn-sm ${exp === e.value ? 'btn-primary' : ''}`}
-                                        onClick={() => setExp(e.value)}
-                                        style={exp === e.value ? {background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))', color: 'var(--bg-primary)'} : {}}
-                                    >
-                                        {e.label}<br/><small>${data.maxPains[e.value].toFixed(2)}</small>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                        
-                        {data.patterns.length > 0 && (
-                            <div className="card">
-                                <div className="card-header">Patterns</div>
-                                {data.patterns.map((p, i) => (
-                                    <div key={i} style={{marginBottom: '1rem', padding: '1rem', background: 'var(--bg-tertiary)', borderRadius: '8px'}}>
-                                        <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem'}}>
-                                            <strong>{p.name}</strong>
-                                            <span className={`badge badge-${p.type === 'bullish' ? 'bull' : 'bear'}`}>{p.type}</span>
-                                        </div>
-                                        <div style={{fontSize: '1.5rem', fontWeight: '700', color: 'var(--accent-primary)'}}>
-                                            {p.conf.toFixed(0)}%
-                                        </div>
-                                        <div style={{fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.5rem'}}>
-                                            Target: ${p.target.toFixed(2)} • Stop: ${p.stop.toFixed(2)}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                        
-                        <div className="ai-box">
-                            <div style={{fontWeight: '600', marginBottom: '0.5rem', color: 'var(--accent-primary)'}}>
-                                <i className="fas fa-brain"></i> AI Prediction
-                            </div>
-                            <div style={{fontSize: '1.25rem', marginBottom: '0.5rem'}}>
-                                Target: <strong>${data.pred.target.toFixed(2)}</strong> • Confidence: <strong>{data.pred.conf}%</strong>
-                            </div>
-                            <div style={{fontSize: '0.9rem', color: 'var(--text-secondary)'}}>
-                                {data.pred.reason}
-                            </div>
-                        </div>
-                    </div>
-                )}
-                
-                <div className="card">
-                    <div className="card-header">Quick Start</div>
-                    <div style={{display: 'flex', gap: '0.5rem', flexWrap: 'wrap'}}>
-                        {['AAPL', 'MSFT', 'GOOGL', 'GME', 'TSLA', 'NVDA', 'SPY'].map(s => (
-                            <button key={s} className="btn-sm" onClick={() => { setSym(s); setTimeout(search, 100); }}>
-                                {s}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        );
+    if (prices.length >= 10) {
+        const lows = prices.slice(-10).sort((a,b) => a-b);
+        if (Math.abs(lows[0] - lows[1]) / lows[0] < 0.02) {
+            patterns.push({
+                name: 'Double Bottom', type: 'bullish', conf: 76 + Math.random() * 14,
+                target: lows[0] * 1.10, stop: lows[0] * 0.96
+            });
+        }
     }
-    
-    function Crypto() {
-        const [sym, setSym] = useState('BTC-USD');
-        const [data, setData] = useState(null);
-        const [loading, setLoading] = useState(false);
-        const [error, setError] = useState(null);
-        
-        const search = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const res = await fetchPrice(sym);
-                if (!res.success) {
-                    setError(res.error);
-                    setLoading(false);
-                    return;
-                }
-                const prices = genPrices(res.price, 100);
-                const rsiData = {
-                    '5m': calcRSI(prices.slice(-20)),
-                    '15m': calcRSI(prices.slice(-30)),
-                    '1h': calcRSI(prices.slice(-40)),
-                    '4h': calcRSI(prices),
-                    '1d': calcRSI(prices)
-                };
-                setData({ ...res, rsiData });
-            } catch (e) {
-                setError(e.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-        
-        return (
-            <div>
-                <div className="search">
-                    <input
-                        className="input"
-                        placeholder="Crypto (BTC-USD, ETH-USD, SOL-USD)"
-                        value={sym}
-                        onChange={(e) => setSym(e.target.value.toUpperCase())}
-                        onKeyPress={(e) => e.key === 'Enter' && search()}
-                    />
-                    <button className="btn btn-primary" onClick={search} disabled={loading}>
-                        <i className="fas fa-chart-line"></i>
-                        {loading ? 'Loading...' : 'Analyze'}
-                    </button>
-                </div>
-                
-                {error && <div className="alert alert-error"><i className="fas fa-xmark"></i><div>{error}</div></div>}
-                {loading && <div className="loading"><div className="spinner"></div></div>}
-                
-                {data && (
-                    <div>
-                        <div className="alert alert-success">
-                            <i className="fas fa-check"></i>
-                            <div>Loaded {data.symbol} • {data.source}</div>
-                        </div>
-                        
-                        <div className="grid">
-                            <div className="stat">
-                                <div className="stat-label">Price</div>
-                                <div className="stat-value">${data.price.toLocaleString()}</div>
-                                <div className={`stat-change ${data.change >= 0 ? 'positive' : 'negative'}`}>
-                                    {data.change >= 0 ? '▲' : '▼'} {Math.abs(data.changePct).toFixed(2)}%
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div className="card">
-                            <div className="card-header">Multi-Timeframe RSI</div>
-                            <div className="grid">
-                                {Object.entries(data.rsiData).map(([tf, rsi]) => (
-                                    <div key={tf} className="stat">
-                                        <div className="stat-label">{tf.toUpperCase()}</div>
-                                        <div className="stat-value">{rsi.value.toFixed(1)}</div>
-                                        <div className={`stat-change ${rsi.value < 30 ? 'positive' : rsi.value > 70 ? 'negative' : ''}`}>
-                                            {rsi.signal}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                )}
-                
-                <div className="card">
-                    <div className="card-header">Quick Start</div>
-                    <div style={{display: 'flex', gap: '0.5rem', flexWrap: 'wrap'}}>
-                        {['BTC-USD', 'ETH-USD', 'SOL-USD', 'DOGE-USD'].map(s => (
-                            <button key={s} className="btn-sm" onClick={() => { setSym(s); setTimeout(search, 100); }}>
-                                {s}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        );
-    }
-    
-    function Alerts({ alerts }) {
-        return (
-            <div className="card">
-                <div className="card-header">Trading Alerts</div>
-                {alerts.length > 0 ? alerts.map(a => (
-                    <div key={a.id} className="alert alert-info">
-                        <i className="fas fa-bell"></i>
-                        <div>
-                            <strong>{a.sym}</strong> - {a.msg}
-                            <div style={{fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.5rem'}}>
-                                Confidence: {a.conf}% • {a.time}
-                            </div>
-                        </div>
-                    </div>
-                )) : (
-                    <div style={{textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)'}}>
-                        No alerts yet. Analyze symbols to generate alerts.
-                    </div>
-                )}
-            </div>
-        );
-    }
-    
-    ReactDOM.render(<App />, document.getElementById('root'));
-</script>
-```
+    return patterns;
+};
 
+const genPrediction = (price, maxPain, rsi) => {
+    const delta = (maxPain - price) / price;
+    let conf = 60 + Math.abs(delta) * 100;
+    if (rsi.value < 30 && delta > 0) conf += 15;
+    if (rsi.value > 70 && delta < 0) conf += 15;
+    conf = Math.min(conf, 95);
+
+    return {
+        target: price * (1 + delta * 0.7),
+        conf: Math.round(conf),
+        dir: delta > 0 ? 'BULLISH' : 'BEARISH',
+        reason: `Max pain ${(delta * 100).toFixed(1)}% ${delta > 0 ? 'above' : 'below'} • RSI ${rsi.value.toFixed(0)} (${rsi.signal})`
+    };
+};
+
+const genPrices = (cur, n = 50) => {
+    const p = [cur];
+    for (let i = 1; i < n; i++) p.unshift(p[0] * (1 + (Math.random() - 0.5) * 0.05));
+    return p;
+};
+
+const genMaxPain = (price, weeks) => {
+    const v = (2 + Math.random() * 3) / 100;
+    const w = Math.max(0.3, 1 - weeks * 0.1);
+    return Math.round(price * (1 + v * w * (Math.random() > 0.5 ? 1 : -1)) * 100) / 100;
+};
+
+const getExpDates = () => {
+    const d = []; const now = new Date();
+    for (let i = 1; i <= 12; i++) {
+        const f = new Date(now);
+        f.setDate(now.getDate() + i * 7);
+        d.push({
+            label: i === 1 ? 'This Week' : `${i} Week${i > 1 ? 's' : ''}`,
+            value: `${i}w`,
+            date: f.toLocaleDateString(),
+            weeks: i
+        });
+    }
+    return d;
+};
+
+/* --- React UI components (mostly unchanged) --- */
+
+function App() {
+    const [tab, setTab] = useState('dash');
+    const [alerts, setAlerts] = useState([]);
+    return (
+        <div className="app">
+            <div className="header">
+                <div className="logo">⚡ MaxPain Pro</div>
+                <div className="nav">
+                    <button className={`nav-btn ${tab === 'dash' ? 'active' : ''}`} onClick={() => setTab('dash')}>
+                        <Icon name="chart-column" /> Dashboard
+                    </button>
+                    <button className={`nav-btn ${tab === 'crypto' ? 'active' : ''}`} onClick={() => setTab('crypto')}>
+                        <Icon name="chart-line" /> Crypto
+                    </button>
+                    <button className={`nav-btn ${tab === 'alerts' ? 'active' : ''}`} onClick={() => setTab('alerts')}>
+                        <Icon name="bell" /> Alerts ({alerts.length})
+                    </button>
+                </div>
+            </div>
+            <div className="content">
+                {tab === 'dash' && <Dashboard setAlerts={setAlerts} />}
+                {tab === 'crypto' && <Crypto />}
+                {tab === 'alerts' && <Alerts alerts={alerts} />}
+            </div>
+        </div>
+    );
+}
+
+function Dashboard({ setAlerts }) {
+    const [sym, setSym] = useState('');
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [exp, setExp] = useState('1w');
+    const exps = getExpDates();
+
+    const search = async () => {
+        if (!sym.trim()) return;
+        setLoading(true); setError(null);
+        try {
+            const res = await fetchPrice(sym);
+            if (!res.success) { setError(res.error); setLoading(false); return; }
+            const prices = genPrices(res.price);
+            const maxPains = {};
+            exps.forEach(e => maxPains[e.value] = genMaxPain(res.price, e.weeks));
+            const patterns = detectPatterns(prices);
+            const rsi = calcRSI(prices);
+            const pred = genPrediction(res.price, maxPains[exp], rsi);
+            setData({ ...res, maxPains, patterns, rsi, pred });
+
+            const mp = maxPains[exp];
+            const delta = ((mp - res.price) / res.price) * 100;
+            if (Math.abs(delta) > 3) {
+                setAlerts(prev => [{
+                    id: Date.now(),
+                    sym: sym.toUpperCase(),
+                    msg: `Max pain ${Math.abs(delta).toFixed(2)}% ${delta > 0 ? 'above' : 'below'} price`,
+                    conf: pred.conf,
+                    time: new Date().toLocaleTimeString()
+                }, ...prev.slice(0, 19)]);
+            }
+        } catch (e) {
+            setError(e.message || 'Unknown error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div>
+            <div className="search">
+                <input className="input" placeholder="Enter ticker (AAPL, GME, TSLA, BTC-USD)"
+                    value={sym} onChange={(e) => setSym(e.target.value.toUpperCase())}
+                    onKeyPress={(e) => e.key === 'Enter' && search()} />
+                <button className="btn btn-primary" onClick={search} disabled={loading}>
+                    <Icon name="search" /> {loading ? 'Loading...' : 'Analyze'}
+                </button>
+            </div>
+
+            {error && (
+                <div className="alert alert-error">
+                    <Icon name="xmark" />
+                    <div>{error}</div>
+                </div>
+            )}
+
+            {loading && <div className="loading"><div className="spinner"></div></div>}
+
+            {data && (
+                <div>
+                    <div className="alert alert-success">
+                        <Icon name="check" />
+                        <div>Loaded {data.symbol} • {data.source} • {new Date().toLocaleTimeString()}</div>
+                    </div>
+
+                    <div className="grid">
+                        <div className="stat">
+                            <div className="stat-label">Price</div>
+                            <div className="stat-value">${data.price.toFixed(2)}</div>
+                            <div className={`stat-change ${data.change >= 0 ? 'positive' : 'negative'}`}>
+                                {data.change >= 0 ? '▲' : '▼'} {Math.abs(data.changePct).toFixed(2)}%
+                            </div>
+                        </div>
+                        <div className="stat">
+                            <div className="stat-label">Max Pain</div>
+                            <div className="stat-value">${data.maxPains[exp].toFixed(2)}</div>
+                            <div className={`stat-change ${data.maxPains[exp] > data.price ? 'positive' : 'negative'}`}>
+                                {((data.maxPains[exp] - data.price) / data.price * 100).toFixed(2)}% Δ
+                            </div>
+                        </div>
+                        <div className="stat">
+                            <div className="stat-label">RSI</div>
+                            <div className="stat-value">{data.rsi.value.toFixed(1)}</div>
+                            <div className="stat-change">{data.rsi.signal}</div>
+                        </div>
+                        <div className="stat">
+                            <div className="stat-label">AI Confidence</div>
+                            <div className="stat-value">{data.pred.conf}%</div>
+                            <div className={`stat-change ${data.pred.dir === 'BULLISH' ? 'positive' : 'negative'}`}>
+                                {data.pred.dir}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="card">
+                        <div className="card-header">Expirations</div>
+                        <div style={{display: 'flex', gap: '0.5rem', flexWrap: 'wrap'}}>
+                            {exps.map(e => (
+                                <button key={e.value}
+                                    className={`btn-sm ${exp === e.value ? 'btn-primary' : ''}`}
+                                    onClick={() => setExp(e.value)}
+                                    style={exp === e.value ? {background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))', color: 'var(--bg-primary)'} : {}}
+                                >
+                                    {e.label}<br/><small>${data.maxPains[e.value].toFixed(2)}</small>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {data.patterns.length > 0 && (
+                        <div className="card">
+                            <div className="card-header">Patterns</div>
+                            {data.patterns.map((p,i) => (
+                                <div key={i} style={{marginBottom:'1rem', padding:'1rem', background:'var(--bg-tertiary)', borderRadius:'8px'}}>
+                                    <div style={{display:'flex', justifyContent:'space-between', marginBottom:'0.5rem'}}>
+                                        <strong>{p.name}</strong>
+                                        <span className={`badge ${p.type === 'bullish' ? 'badge-bull' : 'badge-bear'}`}>{p.type}</span>
+                                    </div>
+                                    <div style={{fontSize:'1.5rem', fontWeight:'700', color:'var(--accent-primary)'}}>
+                                        {p.conf.toFixed(0)}%
+                                    </div>
+                                    <div style={{fontSize:'0.85rem', color:'var(--text-secondary)', marginTop:'0.5rem'}}>
+                                        Target: ${p.target.toFixed(2)} • Stop: ${p.stop.toFixed(2)}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    <div className="ai-box">
+                        <div style={{fontWeight:'600', marginBottom:'0.5rem', color:'var(--accent-primary)'}}>
+                            <Icon name="brain" /> AI Prediction
+                        </div>
+                        <div style={{fontSize:'1.25rem', marginBottom:'0.5rem'}}>
+                            Target: <strong>${data.pred.target.toFixed(2)}</strong> • Confidence: <strong>{data.pred.conf}%</strong>
+                        </div>
+                        <div style={{fontSize:'0.9rem', color:'var(--text-secondary)'}}>
+                            {data.pred.reason}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className="card">
+                <div className="card-header">Quick Start</div>
+                <div style={{display:'flex', gap:'0.5rem', flexWrap:'wrap'}}>
+                    {['AAPL','MSFT','GOOGL','GME','TSLA','NVDA','SPY'].map(s => (
+                        <button key={s} className="btn-sm" onClick={() => { setSym(s); setTimeout(() => { document.querySelector('.input').focus(); }, 100); }}>
+                            {s}
+                        </button>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function Crypto() {
+    const [sym, setSym] = useState('BTC-USD');
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    const search = async () => {
+        setLoading(true); setError(null);
+        try {
+            const res = await fetchPrice(sym);
+            if (!res.success) { setError(res.error); setLoading(false); return; }
+            const prices = genPrices(res.price, 100);
+            const rsiData = {
+                '5m': calcRSI(prices.slice(-20)),
+                '15m': calcRSI(prices.slice(-30)),
+                '1h': calcRSI(prices.slice(-40)),
+                '4h': calcRSI(prices),
+                '1d': calcRSI(prices)
+            };
+            setData({ ...res, rsiData });
+        } catch (e) {
+            setError(e.message || 'Unknown error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div>
+            <div className="search">
+                <input className="input" placeholder="Crypto (BTC-USD, ETH-USD, SOL-USD)"
+                    value={sym} onChange={(e) => setSym(e.target.value.toUpperCase())}
+                    onKeyPress={(e) => e.key === 'Enter' && search()} />
+                <button className="btn btn-primary" onClick={search} disabled={loading}>
+                    <Icon name="chart-line" /> {loading ? 'Loading...' : 'Analyze'}
+                </button>
+            </div>
+
+            {error && <div className="alert alert-error"><Icon name="xmark" /><div>{error}</div></div>}
+            {loading && <div className="loading"><div className="spinner"></div></div>}
+
+            {data && (
+                <div>
+                    <div className="alert alert-success">
+                        <Icon name="check" />
+                        <div>Loaded {data.symbol} • {data.source}</div>
+                    </div>
+
+                    <div className="grid">
+                        <div className="stat">
+                            <div className="stat-label">Price</div>
+                            <div className="stat-value">${data.price.toLocaleString()}</div>
+                            <div className={`stat-change ${data.change >= 0 ? 'positive' : 'negative'}`}>
+                                {data.change >= 0 ? '▲' : '▼'} {Math.abs(data.changePct).toFixed(2)}%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="card">
+                        <div className="card-header">Multi-Timeframe RSI</div>
+                        <div className="grid">
+                            {Object.entries(data.rsiData).map(([tf, rsi]) => (
+                                <div key={tf} className="stat">
+                                    <div className="stat-label">{tf.toUpperCase()}</div>
+                                    <div className="stat-value">{rsi.value.toFixed(1)}</div>
+                                    <div className={`stat-change ${rsi.value < 30 ? 'positive' : rsi.value > 70 ? 'negative' : ''}`}>
+                                        {rsi.signal}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className="card">
+                <div className="card-header">Quick Start</div>
+                <div style={{display:'flex', gap:'0.5rem', flexWrap:'wrap'}}>
+                    {['BTC-USD', 'ETH-USD', 'SOL-USD', 'DOGE-USD'].map(s => (
+                        <button key={s} className="btn-sm" onClick={() => { setSym(s); setTimeout(search, 100); }}>
+                            {s}
+                        </button>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function Alerts({ alerts }) {
+    return (
+        <div className="card">
+            <div className="card-header">Trading Alerts</div>
+            {alerts.length > 0 ? alerts.map(a => (
+                <div key={a.id} className="alert alert-info">
+                    <Icon name="bell" />
+                    <div>
+                        <strong>{a.sym}</strong> - {a.msg}
+                        <div style={{fontSize:'0.85rem', color:'var(--text-secondary)', marginTop:'0.5rem'}}>
+                            Confidence: {a.conf}% • {a.time}
+                        </div>
+                    </div>
+                </div>
+            )) : (
+                <div style={{textAlign:'center', padding:'2rem', color:'var(--text-secondary)'}}>
+                    No alerts yet. Analyze symbols to generate alerts.
+                </div>
+            )}
+        </div>
+    );
+}
+
+ReactDOM.render(<App />, document.getElementById('root'));
+</script>
 </body>
 </html>
