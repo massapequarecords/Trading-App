@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.5/babel.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.1/dist/umd/lucide.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
@@ -542,7 +542,24 @@
 ```
 <script type="text/babel">
     const { useState, useEffect, useRef } = React;
-    const { TrendingUp, TrendingDown, BarChart3, Search, AlertTriangle, Target, Activity, Brain, Eye, Zap } = lucide;
+
+    // Icon Components using Font Awesome
+    const Icon = ({ name, size = 20 }) => {
+        const iconMap = {
+            'trending-up': 'fa-arrow-trend-up',
+            'trending-down': 'fa-arrow-trend-down',
+            'bar-chart': 'fa-chart-column',
+            'search': 'fa-magnifying-glass',
+            'alert-triangle': 'fa-triangle-exclamation',
+            'target': 'fa-bullseye',
+            'activity': 'fa-chart-line',
+            'brain': 'fa-brain',
+            'eye': 'fa-eye',
+            'zap': 'fa-bolt'
+        };
+        
+        return <i className={`fas ${iconMap[name] || 'fa-circle'}`} style={{ fontSize: `${size}px` }}></i>;
+    };
 
     // Utility Functions
     const fetchRealTimePrice = async (symbol) => {
@@ -851,7 +868,7 @@
                         onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                     />
                     <button className="btn btn-primary" onClick={handleSearch}>
-                        <Search size={20} />
+                        <Icon name="search" size={20} />
                         Analyze
                     </button>
                 </div>
@@ -1078,7 +1095,7 @@
                             onKeyPress={(e) => e.key === 'Enter' && analyzeCrypto()}
                         />
                         <button className="btn btn-primary" onClick={analyzeCrypto}>
-                            <Activity size={20} />
+                            <Icon name="activity" size={20} />
                             Analyze Crypto
                         </button>
                     </div>
@@ -1206,13 +1223,13 @@
                     <div className="logo">⚡ MaxPain Pro</div>
                     <nav className="nav-tabs">
                         <button className={`nav-tab ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
-                            <BarChart3 size={18} /> Dashboard
+                            <Icon name="bar-chart" size={18} /> Dashboard
                         </button>
                         <button className={`nav-tab ${activeTab === 'crypto' ? 'active' : ''}`} onClick={() => setActiveTab('crypto')}>
-                            <Activity size={18} /> Crypto Analysis
+                            <Icon name="activity" size={18} /> Crypto Analysis
                         </button>
                         <button className={`nav-tab ${activeTab === 'alerts' ? 'active' : ''}`} onClick={() => setActiveTab('alerts')}>
-                            <AlertTriangle size={18} /> Alerts
+                            <Icon name="alert-triangle" size={18} /> Alerts
                         </button>
                     </nav>
                 </header>
