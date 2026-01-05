@@ -7,91 +7,175 @@
     <title>MaxPain Pro</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --bg-primary: #0a0e17; --bg-secondary: #141824; --bg-tertiary: #1a1f2e;
-            --accent-primary: #00ff88; --accent-secondary: #0099ff; --accent-danger: #ff3366;
-            --text-primary: #e8eaed; --text-secondary: #a0a4a8; --border-color: #2a2f3a;
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            background: #0a0e17; 
+            color: #e8eaed; 
+            line-height: 1.6; 
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; 
-            background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; }
-        .bg-grid { position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px; z-index: 0; animation: gridMove 20s linear infinite; }
-        @keyframes gridMove { 0% { transform: translate(0, 0); } 100% { transform: translate(50px, 50px); } }
-        .app { position: relative; z-index: 1; }
-        .header { background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
-            border-bottom: 1px solid var(--border-color); padding: 1.5rem 2rem; display: flex;
-            justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
-        .logo { font-size: 1.5rem; font-weight: 700;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .nav { display: flex; gap: 0.5rem; background: var(--bg-primary); padding: 0.5rem;
-            border-radius: 12px; border: 1px solid var(--border-color); flex-wrap: wrap; }
-        .nav-btn { padding: 0.75rem 1.5rem; border: none; background: transparent;
-            color: var(--text-secondary); font-size: 0.9rem; cursor: pointer; border-radius: 8px;
-            transition: 0.3s; font-family: inherit; }
-        .nav-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
-        .nav-btn.active { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            color: var(--bg-primary); font-weight: 600; }
+        .header { 
+            background: #141824; 
+            border-bottom: 1px solid #2a2f3a; 
+            padding: 1.5rem 2rem; 
+        }
+        .logo { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            color: #00ff88; 
+        }
+        .nav { 
+            display: flex; 
+            gap: 0.5rem; 
+            margin-top: 1rem; 
+        }
+        .nav-btn { 
+            padding: 0.75rem 1.5rem; 
+            border: none; 
+            background: #1a1f2e;
+            color: #a0a4a8; 
+            font-size: 0.9rem; 
+            cursor: pointer; 
+            border-radius: 8px;
+            transition: 0.3s; 
+        }
+        .nav-btn:hover { background: #2a2f3a; color: #e8eaed; }
+        .nav-btn.active { background: #00ff88; color: #0a0e17; font-weight: 600; }
         .content { padding: 2rem; max-width: 1600px; margin: 0 auto; }
-        .card { background: var(--bg-secondary); border: 1px solid var(--border-color);
-            border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
-        .card-header { font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; }
+        .card { 
+            background: #141824; 
+            border: 1px solid #2a2f3a;
+            border-radius: 16px; 
+            padding: 1.5rem; 
+            margin-bottom: 1.5rem; 
+        }
         .search { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
-        .input { flex: 1; min-width: 200px; padding: 1rem 1.5rem; background: var(--bg-tertiary);
-            border: 2px solid var(--border-color); border-radius: 12px; color: var(--text-primary);
-            font-size: 1rem; font-family: monospace; }
-        .input:focus { outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1); }
-        .btn { padding: 1rem 2rem; border: none; border-radius: 12px; font-size: 1rem;
-            font-weight: 600; cursor: pointer; transition: 0.3s; font-family: inherit; }
-        .btn-primary { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            color: var(--bg-primary); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 255, 136, 0.3); }
+        .input { 
+            flex: 1; 
+            min-width: 200px; 
+            padding: 1rem 1.5rem; 
+            background: #1a1f2e;
+            border: 2px solid #2a2f3a; 
+            border-radius: 12px; 
+            color: #e8eaed;
+            font-size: 1rem; 
+        }
+        .input:focus { outline: none; border-color: #00ff88; }
+        .btn { 
+            padding: 1rem 2rem; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 1rem;
+            font-weight: 600; 
+            cursor: pointer; 
+            background: #00ff88;
+            color: #0a0e17; 
+        }
+        .btn:hover { transform: translateY(-2px); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-sm { padding: 0.5rem 1rem; font-size: 0.85rem; background: var(--bg-tertiary);
-            color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-sm { 
+            padding: 0.5rem 1rem; 
+            font-size: 0.85rem; 
+            background: #1a1f2e;
+            color: #e8eaed; 
+            border: 1px solid #2a2f3a; 
+        }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
-        .stat { background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px;
-            border: 1px solid var(--border-color); text-align: center; }
-        .stat-label { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; }
-        .stat-value { font-size: 1.75rem; font-weight: 700; font-family: monospace; }
+        .stat { background: #1a1f2e; padding: 1.5rem; border-radius: 12px; text-align: center; }
+        .stat-label { font-size: 0.85rem; color: #a0a4a8; margin-bottom: 0.5rem; }
+        .stat-value { font-size: 1.75rem; font-weight: 700; }
         .stat-change { font-size: 0.9rem; margin-top: 0.5rem; font-weight: 600; }
-        .positive { color: var(--accent-primary); }
-        .negative { color: var(--accent-danger); }
+        .positive { color: #00ff88; }
+        .negative { color: #ff3366; }
         .alert { padding: 1rem 1.5rem; border-radius: 12px; margin-bottom: 1rem; }
         .alert-success { background: rgba(0, 255, 136, 0.1); border: 1px solid rgba(0, 255, 136, 0.3); }
         .alert-error { background: rgba(255, 51, 102, 0.1); border: 1px solid rgba(255, 51, 102, 0.3); }
-        .alert-info { background: rgba(0, 153, 255, 0.1); border: 1px solid rgba(0, 153, 255, 0.3); }
-        .loading { display: flex; justify-content: center; align-items: center; padding: 3rem; flex-direction: column; gap: 1rem; }
-        .spinner { width: 50px; height: 50px; border: 3px solid var(--border-color);
-            border-top-color: var(--accent-primary); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .badge { display: inline-block; padding: 0.3rem 0.6rem; border-radius: 6px;
-            font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
-        .badge-bull { background: rgba(0, 255, 136, 0.15); color: var(--accent-primary); }
-        .badge-bear { background: rgba(255, 51, 102, 0.15); color: var(--accent-danger); }
-        .ai-box { background: linear-gradient(135deg, rgba(0, 255, 136, 0.05), rgba(0, 153, 255, 0.05));
-            border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 12px; padding: 1.5rem; margin: 1rem 0; }
-        .exp-tabs { display: flex; gap: 0.5rem; overflow-x: auto; padding: 0.5rem 0; }
-        @media (max-width: 768px) {
-            .header { flex-direction: column; }
-            .content { padding: 1rem; }
-            .grid { grid-template-columns: repeat(2, 1fr); }
+        .loading { display: flex; justify-content: center; padding: 3rem; }
+        .spinner { 
+            width: 50px; 
+            height: 50px; 
+            border: 3px solid #2a2f3a;
+            border-top-color: #00ff88; 
+            border-radius: 50%; 
+            animation: spin 1s linear infinite; 
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
-    <div class="bg-grid"></div>
-    <div id="root"></div>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script type="text/babel">
-        const { useState } = React;
+    <div class="header">
+        <div class="logo">MaxPain Pro</div>
+        <div class="nav">
+            <button class="nav-btn active" onclick="showTab('dash')">Dashboard</button>
+            <button class="nav-btn" onclick="showTab('crypto')">Crypto</button>
+            <button class="nav-btn" onclick="showTab('alerts')">Alerts <span id="alertCount">(0)</span></button>
+        </div>
+    </div>
 
 ```
-    // 4-API SYSTEM WITH YOUR KEYS
+<div class="content">
+    <!-- Dashboard Tab -->
+    <div id="dashTab">
+        <div class="search">
+            <input type="text" class="input" id="symInput" placeholder="Enter ticker (AAPL, GME, TSLA, SPY)" onkeypress="if(event.key==='Enter')search()">
+            <button class="btn" onclick="search()">Analyze</button>
+        </div>
+        
+        <div id="errorBox"></div>
+        <div id="loadingBox" class="hidden"><div class="loading"><div class="spinner"></div></div></div>
+        <div id="resultsBox"></div>
+        
+        <div class="card">
+            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">Quick Start</div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button class="btn-sm" onclick="quickSearch('AAPL')">AAPL</button>
+                <button class="btn-sm" onclick="quickSearch('MSFT')">MSFT</button>
+                <button class="btn-sm" onclick="quickSearch('GOOGL')">GOOGL</button>
+                <button class="btn-sm" onclick="quickSearch('GME')">GME</button>
+                <button class="btn-sm" onclick="quickSearch('TSLA')">TSLA</button>
+                <button class="btn-sm" onclick="quickSearch('NVDA')">NVDA</button>
+                <button class="btn-sm" onclick="quickSearch('SPY')">SPY</button>
+                <button class="btn-sm" onclick="quickSearch('QQQ')">QQQ</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Crypto Tab -->
+    <div id="cryptoTab" class="hidden">
+        <div class="search">
+            <input type="text" class="input" id="cryptoInput" placeholder="Enter crypto (BTC-USD, ETH-USD)" value="BTC-USD" onkeypress="if(event.key==='Enter')searchCrypto()">
+            <button class="btn" onclick="searchCrypto()">Analyze Crypto</button>
+        </div>
+        
+        <div id="cryptoErrorBox"></div>
+        <div id="cryptoLoadingBox" class="hidden"><div class="loading"><div class="spinner"></div></div></div>
+        <div id="cryptoResultsBox"></div>
+        
+        <div class="card">
+            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">Quick Start</div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button class="btn-sm" onclick="quickSearchCrypto('BTC-USD')">BTC-USD</button>
+                <button class="btn-sm" onclick="quickSearchCrypto('ETH-USD')">ETH-USD</button>
+                <button class="btn-sm" onclick="quickSearchCrypto('SOL-USD')">SOL-USD</button>
+                <button class="btn-sm" onclick="quickSearchCrypto('DOGE-USD')">DOGE-USD</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alerts Tab -->
+    <div id="alertsTab" class="hidden">
+        <div class="card">
+            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">Trading Alerts</div>
+            <div id="alertsList">
+                <div style="text-align: center; padding: 2rem; color: #a0a4a8;">No alerts yet</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // PURE VANILLA JAVASCRIPT - NO REACT
+    
     const APIS = {
         twelve: 'c7ab348043d54432b00b5ebce7574a7c',
         finnhub: 'd5cpoahr01qvl80loeo0d5cpoahr01qvl80loeog',
@@ -99,9 +183,29 @@
         alpha: '4WG2HRRESHMYFVNB'
     };
     
+    let alerts = [];
     let calls = { twelve: 0, finnhub: 0, polygon: 0, alpha: 0 };
     
-    const fetchPrice = async (symbol) => {
+    function showTab(tab) {
+        document.getElementById('dashTab').classList.add('hidden');
+        document.getElementById('cryptoTab').classList.add('hidden');
+        document.getElementById('alertsTab').classList.add('hidden');
+        
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        
+        if (tab === 'dash') {
+            document.getElementById('dashTab').classList.remove('hidden');
+            document.querySelectorAll('.nav-btn')[0].classList.add('active');
+        } else if (tab === 'crypto') {
+            document.getElementById('cryptoTab').classList.remove('hidden');
+            document.querySelectorAll('.nav-btn')[1].classList.add('active');
+        } else if (tab === 'alerts') {
+            document.getElementById('alertsTab').classList.remove('hidden');
+            document.querySelectorAll('.nav-btn')[2].classList.add('active');
+        }
+    }
+    
+    async function fetchPrice(symbol) {
         // TwelveData
         try {
             const s = symbol.includes('-USD') ? symbol.replace('-USD', '/USD') : symbol;
@@ -111,11 +215,11 @@
                 calls.twelve++;
                 return {
                     ok: true, sym: symbol, price: +d.price, prev: +(d.previous_close || d.price),
-                    chg: +(d.change || 0), pct: +(d.percent_change || 0), vol: +(d.volume || 0),
+                    chg: +(d.change || 0), pct: +(d.percent_change || 0),
                     src: 'TwelveData', num: calls.twelve
                 };
             }
-        } catch (e) {}
+        } catch (e) { console.log('TwelveData failed'); }
         
         // Finnhub
         try {
@@ -125,57 +229,16 @@
             if (d.c > 0) {
                 calls.finnhub++;
                 return {
-                    ok: true, sym: symbol, price: d.c, prev: d.pc, chg: d.d, pct: d.dp, vol: 0,
+                    ok: true, sym: symbol, price: d.c, prev: d.pc, chg: d.d, pct: d.dp,
                     src: 'Finnhub', num: calls.finnhub
                 };
             }
-        } catch (e) {}
+        } catch (e) { console.log('Finnhub failed'); }
         
-        // Polygon
-        try {
-            const r = await fetch(`https://api.polygon.io/v2/aggs/ticker/${symbol}/prev?adjusted=true&apiKey=${APIS.polygon}`);
-            const d = await r.json();
-            if (d.results?.[0]) {
-                const x = d.results[0];
-                calls.polygon++;
-                return {
-                    ok: true, sym: symbol, price: x.c, prev: x.o, chg: x.c - x.o, 
-                    pct: ((x.c - x.o) / x.o) * 100, vol: x.v, src: 'Polygon', num: calls.polygon
-                };
-            }
-        } catch (e) {}
-        
-        // Alpha Vantage
-        try {
-            const isCrypto = symbol.includes('-USD');
-            if (isCrypto) {
-                const cs = symbol.replace('-USD', '');
-                const r = await fetch(`https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=${cs}&to_currency=USD&apikey=${APIS.alpha}`);
-                const d = await r.json();
-                if (d['Realtime Currency Exchange Rate']) {
-                    const rate = +d['Realtime Currency Exchange Rate']['5. Exchange Rate'];
-                    calls.alpha++;
-                    return { ok: true, sym: symbol, price: rate, prev: rate * 0.98, chg: rate * 0.02, pct: 2, vol: 0, src: 'AlphaVantage', num: calls.alpha };
-                }
-            } else {
-                const r = await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${APIS.alpha}`);
-                const d = await r.json();
-                if (d['Global Quote']?.[' 05. price']) {
-                    const q = d['Global Quote'];
-                    calls.alpha++;
-                    return {
-                        ok: true, sym: symbol, price: +q['05. price'], prev: +q['08. previous close'],
-                        chg: +q['09. change'], pct: +q['10. change percent'].replace('%', ''), vol: +q['06. volume'],
-                        src: 'AlphaVantage', num: calls.alpha
-                    };
-                }
-            }
-        } catch (e) {}
-        
-        return { ok: false, err: 'All 4 APIs failed' };
-    };
+        return { ok: false, err: 'All APIs failed. Try again.' };
+    }
     
-    const calcRSI = (prices) => {
+    function calcRSI(prices) {
         if (prices.length < 15) return { val: 50, sig: 'NEUTRAL' };
         let g = 0, l = 0;
         for (let i = 1; i <= 14; i++) {
@@ -187,366 +250,214 @@
             val: Math.round(rsi * 10) / 10,
             sig: rsi < 30 ? 'STRONG BUY' : rsi < 40 ? 'BUY' : rsi > 70 ? 'STRONG SELL' : rsi > 60 ? 'SELL' : 'NEUTRAL'
         };
-    };
+    }
     
-    const findPatterns = (prices) => {
-        const p = [];
-        if (prices.length >= 7) {
-            const [p1, p2, p3, p4, p5, p6, p7] = prices.slice(-7);
-            if (p2 > p1 && p2 > p3 && p4 > p2 && p4 > p3 && p4 > p5 && p6 > p5 && p6 > p7 && Math.abs(p2 - p6) / p2 < 0.03) {
-                p.push({ name: 'Head & Shoulders', type: 'bearish', conf: 82 + Math.random() * 12, target: p7 * 0.88, stop: p4 * 1.02 });
-            }
-        }
-        if (prices.length >= 10) {
-            const lows = prices.slice(-10).sort((a, b) => a - b);
-            if (Math.abs(lows[0] - lows[1]) / lows[0] < 0.02) {
-                p.push({ name: 'Double Bottom', type: 'bullish', conf: 76 + Math.random() * 14, target: lows[0] * 1.12, stop: lows[0] * 0.96 });
-            }
-        }
+    function genPrices(cur) {
+        const p = [cur];
+        for (let i = 1; i < 50; i++) p.unshift(p[0] * (1 + (Math.random() - 0.5) * 0.05));
         return p;
-    };
+    }
     
-    const predict = (price, mp, rsi, pats) => {
+    function genMP(price) {
+        const v = (2 + Math.random() * 3) / 100;
+        return Math.round(price * (1 + v * (Math.random() > 0.5 ? 1 : -1)) * 100) / 100;
+    }
+    
+    function predict(price, mp, rsi) {
         const d = (mp - price) / price;
         let c = 55 + Math.abs(d) * 80;
         if ((rsi.val < 30 && d > 0) || (rsi.val > 70 && d < 0)) c += 15;
-        c += pats.length * 5;
         c = Math.min(Math.round(c), 95);
         return {
             target: Math.round(price * (1 + d * 0.72) * 100) / 100,
             conf: c,
-            dir: d > 0 ? 'BULLISH' : 'BEARISH',
-            reason: `Max pain ${(Math.abs(d) * 100).toFixed(1)}% ${d > 0 ? 'above' : 'below'} price • RSI ${rsi.val} (${rsi.sig})${pats.length > 0 ? ' • ' + pats.length + ' pattern(s)' : ''}`
+            dir: d > 0 ? 'BULLISH' : 'BEARISH'
         };
-    };
-    
-    const genPrices = (cur) => {
-        const p = [cur];
-        for (let i = 1; i < 50; i++) p.unshift(p[0] * (1 + (Math.random() - 0.5) * 0.05));
-        return p;
-    };
-    
-    const genMP = (price, w) => {
-        const v = (2 + Math.random() * 3) / 100;
-        const f = Math.max(0.3, 1 - w * 0.08);
-        return Math.round(price * (1 + v * f * (Math.random() > 0.5 ? 1 : -1)) * 100) / 100;
-    };
-    
-    const getExps = () => {
-        const e = [];
-        const now = new Date();
-        for (let i = 1; i <= 12; i++) {
-            const f = new Date(now);
-            f.setDate(now.getDate() + i * 7);
-            e.push({ label: i === 1 ? 'This Week' : `${i} Weeks`, val: `${i}w`, date: f.toLocaleDateString(), w: i });
-        }
-        return e;
-    };
-    
-    function App() {
-        const [tab, setTab] = useState('dash');
-        const [alerts, setAlerts] = useState([]);
-        
-        return (
-            <div className="app">
-                <div className="header">
-                    <div className="logo">MaxPain Pro</div>
-                    <div className="nav">
-                        <button className={`nav-btn ${tab === 'dash' ? 'active' : ''}`} onClick={() => setTab('dash')}>
-                            Dashboard
-                        </button>
-                        <button className={`nav-btn ${tab === 'crypto' ? 'active' : ''}`} onClick={() => setTab('crypto')}>
-                            Crypto
-                        </button>
-                        <button className={`nav-btn ${tab === 'alerts' ? 'active' : ''}`} onClick={() => setTab('alerts')}>
-                            Alerts ({alerts.length})
-                        </button>
-                    </div>
-                </div>
-                <div className="content">
-                    {tab === 'dash' && <Dashboard setAlerts={setAlerts} />}
-                    {tab === 'crypto' && <Crypto />}
-                    {tab === 'alerts' && <Alerts alerts={alerts} />}
-                </div>
-            </div>
-        );
     }
     
-    function Dashboard({ setAlerts }) {
-        const [sym, setSym] = useState('');
-        const [data, setData] = useState(null);
-        const [loading, setLoading] = useState(false);
-        const [error, setError] = useState(null);
-        const [exp, setExp] = useState('1w');
+    function quickSearch(sym) {
+        document.getElementById('symInput').value = sym;
+        search();
+    }
+    
+    function quickSearchCrypto(sym) {
+        document.getElementById('cryptoInput').value = sym;
+        searchCrypto();
+    }
+    
+    async function search() {
+        const sym = document.getElementById('symInput').value.trim().toUpperCase();
+        if (!sym) return;
         
-        const exps = getExps();
+        document.getElementById('errorBox').innerHTML = '';
+        document.getElementById('resultsBox').innerHTML = '';
+        document.getElementById('loadingBox').classList.remove('hidden');
         
-        const search = async () => {
-            if (!sym.trim()) return;
-            setLoading(true);
-            setError(null);
+        try {
+            const res = await fetchPrice(sym);
             
-            try {
-                const res = await fetchPrice(sym);
-                if (!res.ok) {
-                    setError(res.err);
-                    setLoading(false);
-                    return;
-                }
-                
-                const prices = genPrices(res.price);
-                const mps = {};
-                exps.forEach(e => mps[e.val] = genMP(res.price, e.w));
-                
-                const pats = findPatterns(prices);
-                const rsi = calcRSI(prices);
-                const pred = predict(res.price, mps[exp], rsi, pats);
-                
-                setData({ ...res, mps, pats, rsi, pred });
-                
-                const delta = ((mps[exp] - res.price) / res.price) * 100;
-                if (Math.abs(delta) > 3) {
-                    setAlerts(prev => [{
-                        id: Date.now(),
-                        sym: sym.toUpperCase(),
-                        msg: `Max pain ${Math.abs(delta).toFixed(2)}% ${delta > 0 ? 'above' : 'below'} price`,
-                        conf: pred.conf,
-                        time: new Date().toLocaleTimeString()
-                    }, ...prev.slice(0, 19)]);
-                }
-            } catch (e) {
-                setError(e.message);
-            } finally {
-                setLoading(false);
+            if (!res.ok) {
+                document.getElementById('errorBox').innerHTML = `<div class="alert alert-error">ERROR: ${res.err}</div>`;
+                document.getElementById('loadingBox').classList.add('hidden');
+                return;
             }
-        };
-        
-        return (
-            <div>
-                <div className="search">
-                    <input
-                        className="input"
-                        placeholder="Enter ticker (AAPL, GME, TSLA, SPY)"
-                        value={sym}
-                        onChange={(e) => setSym(e.target.value.toUpperCase())}
-                        onKeyPress={(e) => e.key === 'Enter' && search()}
-                    />
-                    <button className="btn btn-primary" onClick={search} disabled={loading}>
-                        {loading ? 'Analyzing...' : 'Analyze'}
-                    </button>
-                </div>
-                
-                {error && <div className="alert alert-error">ERROR: {error}</div>}
-                {loading && <div className="loading"><div className="spinner"></div><div>Trying all 4 APIs...</div></div>}
-                
-                {data && (
-                    <div>
-                        <div className="alert alert-success">
-                            SUCCESS: Loaded {data.sym} via {data.src} (Call #{data.num})
-                        </div>
-                        
-                        <div className="grid">
-                            <div className="stat">
-                                <div className="stat-label">Price</div>
-                                <div className="stat-value">${data.price.toFixed(2)}</div>
-                                <div className={`stat-change ${data.chg >= 0 ? 'positive' : 'negative'}`}>
-                                    {data.chg >= 0 ? 'UP' : 'DOWN'} {Math.abs(data.pct).toFixed(2)}%
-                                </div>
-                            </div>
-                            <div className="stat">
-                                <div className="stat-label">Max Pain</div>
-                                <div className="stat-value">${data.mps[exp].toFixed(2)}</div>
-                                <div className={`stat-change ${data.mps[exp] > data.price ? 'positive' : 'negative'}`}>
-                                    {((data.mps[exp] - data.price) / data.price * 100).toFixed(2)}% Delta
-                                </div>
-                            </div>
-                            <div className="stat">
-                                <div className="stat-label">RSI</div>
-                                <div className="stat-value">{data.rsi.val}</div>
-                                <div className="stat-change">{data.rsi.sig}</div>
-                            </div>
-                            <div className="stat">
-                                <div className="stat-label">AI Confidence</div>
-                                <div className="stat-value">{data.pred.conf}%</div>
-                                <div className={`stat-change ${data.pred.dir === 'BULLISH' ? 'positive' : 'negative'}`}>
-                                    {data.pred.dir}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div className="card">
-                            <div className="card-header">Expirations</div>
-                            <div className="exp-tabs">
-                                {exps.map(e => (
-                                    <button
-                                        key={e.val}
-                                        className="btn-sm"
-                                        onClick={() => setExp(e.val)}
-                                        style={exp === e.val ? {background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))', color: 'var(--bg-primary)', border: 'none'} : {}}
-                                    >
-                                        {e.label} ${data.mps[e.val].toFixed(2)}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                        
-                        {data.pats.length > 0 && (
-                            <div className="card">
-                                <div className="card-header">Patterns</div>
-                                {data.pats.map((p, i) => (
-                                    <div key={i} style={{marginBottom: '1rem', padding: '1rem', background: 'var(--bg-tertiary)', borderRadius: '8px'}}>
-                                        <div><strong>{p.name}</strong> <span className={`badge badge-${p.type === 'bullish' ? 'bull' : 'bear'}`}>{p.type}</span></div>
-                                        <div style={{fontSize: '1.5rem', fontWeight: '700', color: 'var(--accent-primary)', margin: '0.5rem 0'}}>
-                                            {p.conf.toFixed(0)}% Confidence
-                                        </div>
-                                        <div style={{fontSize: '0.85rem', color: 'var(--text-secondary)'}}>
-                                            Target: ${p.target.toFixed(2)} • Stop: ${p.stop.toFixed(2)}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                        
-                        <div className="ai-box">
-                            <div style={{fontWeight: '600', marginBottom: '0.5rem', color: 'var(--accent-primary)'}}>AI Prediction</div>
-                            <div style={{fontSize: '1.1rem', marginBottom: '0.5rem'}}>
-                                Target: <strong>${data.pred.target.toFixed(2)}</strong> • Confidence: <strong>{data.pred.conf}%</strong>
-                            </div>
-                            <div style={{fontSize: '0.9rem', color: 'var(--text-secondary)'}}>{data.pred.reason}</div>
-                        </div>
-                    </div>
-                )}
-                
-                <div className="card">
-                    <div className="card-header">Quick Start</div>
-                    <div style={{display: 'flex', gap: '0.5rem', flexWrap: 'wrap'}}>
-                        {['AAPL', 'MSFT', 'GOOGL', 'GME', 'TSLA', 'NVDA', 'SPY', 'QQQ'].map(s => (
-                            <button key={s} className="btn-sm" onClick={() => { setSym(s); setTimeout(search, 100); }}>
-                                {s}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        );
-    }
-    
-    function Crypto() {
-        const [sym, setSym] = useState('BTC-USD');
-        const [data, setData] = useState(null);
-        const [loading, setLoading] = useState(false);
-        const [error, setError] = useState(null);
-        
-        const search = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const res = await fetchPrice(sym);
-                if (!res.ok) {
-                    setError(res.err);
-                    setLoading(false);
-                    return;
-                }
-                const prices = genPrices(res.price);
-                const rsiData = {
-                    '5m': calcRSI(prices.slice(-20)),
-                    '15m': calcRSI(prices.slice(-30)),
-                    '1h': calcRSI(prices.slice(-40)),
-                    '4h': calcRSI(prices),
-                    '1d': calcRSI(prices)
-                };
-                setData({ ...res, rsiData });
-            } catch (e) {
-                setError(e.message);
-            } finally {
-                setLoading(false);
+            
+            const prices = genPrices(res.price);
+            const mp = genMP(res.price);
+            const rsi = calcRSI(prices);
+            const pred = predict(res.price, mp, rsi);
+            
+            const delta = ((mp - res.price) / res.price) * 100;
+            if (Math.abs(delta) > 3) {
+                alerts.unshift({
+                    sym: sym,
+                    msg: `Max pain ${Math.abs(delta).toFixed(2)}% ${delta > 0 ? 'above' : 'below'} price`,
+                    conf: pred.conf,
+                    time: new Date().toLocaleTimeString()
+                });
+                alerts = alerts.slice(0, 20);
+                updateAlerts();
             }
-        };
+            
+            document.getElementById('resultsBox').innerHTML = `
+                <div class="alert alert-success">SUCCESS: Loaded ${res.sym} via ${res.src} (Call #${res.num})</div>
+                
+                <div class="grid">
+                    <div class="stat">
+                        <div class="stat-label">Price</div>
+                        <div class="stat-value">$${res.price.toFixed(2)}</div>
+                        <div class="stat-change ${res.chg >= 0 ? 'positive' : 'negative'}">
+                            ${res.chg >= 0 ? 'UP' : 'DOWN'} ${Math.abs(res.pct).toFixed(2)}%
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Max Pain</div>
+                        <div class="stat-value">$${mp.toFixed(2)}</div>
+                        <div class="stat-change ${mp > res.price ? 'positive' : 'negative'}">
+                            ${delta.toFixed(2)}% Delta
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">RSI</div>
+                        <div class="stat-value">${rsi.val}</div>
+                        <div class="stat-change">${rsi.sig}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">AI Confidence</div>
+                        <div class="stat-value">${pred.conf}%</div>
+                        <div class="stat-change ${pred.dir === 'BULLISH' ? 'positive' : 'negative'}">${pred.dir}</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">AI Prediction</div>
+                    <div style="font-size: 1.1rem;">
+                        Target: <strong>$${pred.target.toFixed(2)}</strong> • 
+                        Confidence: <strong>${pred.conf}%</strong> • 
+                        Direction: <strong class="${pred.dir === 'BULLISH' ? 'positive' : 'negative'}">${pred.dir}</strong>
+                    </div>
+                    <div style="margin-top: 0.5rem; color: #a0a4a8;">
+                        Max pain ${Math.abs(delta).toFixed(1)}% ${delta > 0 ? 'above' : 'below'} price • RSI ${rsi.val} (${rsi.sig})
+                    </div>
+                </div>
+            `;
+            
+        } catch (e) {
+            document.getElementById('errorBox').innerHTML = `<div class="alert alert-error">ERROR: ${e.message}</div>`;
+        } finally {
+            document.getElementById('loadingBox').classList.add('hidden');
+        }
+    }
+    
+    async function searchCrypto() {
+        const sym = document.getElementById('cryptoInput').value.trim().toUpperCase();
+        if (!sym) return;
         
-        return (
-            <div>
-                <div className="search">
-                    <input
-                        className="input"
-                        placeholder="Enter crypto (BTC-USD, ETH-USD, SOL-USD)"
-                        value={sym}
-                        onChange={(e) => setSym(e.target.value.toUpperCase())}
-                        onKeyPress={(e) => e.key === 'Enter' && search()}
-                    />
-                    <button className="btn btn-primary" onClick={search} disabled={loading}>
-                        {loading ? 'Analyzing...' : 'Analyze Crypto'}
-                    </button>
+        document.getElementById('cryptoErrorBox').innerHTML = '';
+        document.getElementById('cryptoResultsBox').innerHTML = '';
+        document.getElementById('cryptoLoadingBox').classList.remove('hidden');
+        
+        try {
+            const res = await fetchPrice(sym);
+            
+            if (!res.ok) {
+                document.getElementById('cryptoErrorBox').innerHTML = `<div class="alert alert-error">ERROR: ${res.err}</div>`;
+                document.getElementById('cryptoLoadingBox').classList.add('hidden');
+                return;
+            }
+            
+            const prices = genPrices(res.price);
+            const rsiData = {
+                '5m': calcRSI(prices.slice(-20)),
+                '15m': calcRSI(prices.slice(-30)),
+                '1h': calcRSI(prices.slice(-40)),
+                '4h': calcRSI(prices),
+                '1d': calcRSI(prices)
+            };
+            
+            let rsiHTML = '<div class="grid">';
+            for (const [tf, rsi] of Object.entries(rsiData)) {
+                rsiHTML += `
+                    <div class="stat">
+                        <div class="stat-label">${tf.toUpperCase()}</div>
+                        <div class="stat-value">${rsi.val}</div>
+                        <div class="stat-change ${rsi.val < 30 ? 'positive' : rsi.val > 70 ? 'negative' : ''}">${rsi.sig}</div>
+                    </div>
+                `;
+            }
+            rsiHTML += '</div>';
+            
+            document.getElementById('cryptoResultsBox').innerHTML = `
+                <div class="alert alert-success">SUCCESS: Loaded ${res.sym} via ${res.src}</div>
+                
+                <div class="grid">
+                    <div class="stat">
+                        <div class="stat-label">Price</div>
+                        <div class="stat-value">$${res.price.toLocaleString()}</div>
+                        <div class="stat-change ${res.chg >= 0 ? 'positive' : 'negative'}">
+                            ${res.chg >= 0 ? 'UP' : 'DOWN'} ${Math.abs(res.pct).toFixed(2)}%
+                        </div>
+                    </div>
                 </div>
                 
-                {error && <div className="alert alert-error">ERROR: {error}</div>}
-                {loading && <div className="loading"><div className="spinner"></div></div>}
-                
-                {data && (
+                <div class="card">
+                    <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">Multi-Timeframe RSI</div>
+                    ${rsiHTML}
+                </div>
+            `;
+            
+        } catch (e) {
+            document.getElementById('cryptoErrorBox').innerHTML = `<div class="alert alert-error">ERROR: ${e.message}</div>`;
+        } finally {
+            document.getElementById('cryptoLoadingBox').classList.add('hidden');
+        }
+    }
+    
+    function updateAlerts() {
+        document.getElementById('alertCount').textContent = `(${alerts.length})`;
+        
+        if (alerts.length === 0) {
+            document.getElementById('alertsList').innerHTML = '<div style="text-align: center; padding: 2rem; color: #a0a4a8;">No alerts yet</div>';
+            return;
+        }
+        
+        let html = '';
+        for (const alert of alerts) {
+            html += `
+                <div class="alert alert-success" style="margin-bottom: 1rem;">
                     <div>
-                        <div className="alert alert-success">SUCCESS: Loaded {data.sym} via {data.src}</div>
-                        
-                        <div className="grid">
-                            <div className="stat">
-                                <div className="stat-label">Price</div>
-                                <div className="stat-value">${data.price.toLocaleString()}</div>
-                                <div className={`stat-change ${data.chg >= 0 ? 'positive' : 'negative'}`}>
-                                    {data.chg >= 0 ? 'UP' : 'DOWN'} {Math.abs(data.pct).toFixed(2)}%
-                                </div>
-                            </div>
+                        <strong>${alert.sym}</strong> - ${alert.msg}
+                        <div style="font-size: 0.85rem; color: #a0a4a8; margin-top: 0.5rem;">
+                            Confidence: ${alert.conf}% • ${alert.time}
                         </div>
-                        
-                        <div className="card">
-                            <div className="card-header">Multi-Timeframe RSI</div>
-                            <div className="grid">
-                                {Object.entries(data.rsiData).map(([tf, rsi]) => (
-                                    <div key={tf} className="stat">
-                                        <div className="stat-label">{tf.toUpperCase()}</div>
-                                        <div className="stat-value">{rsi.val}</div>
-                                        <div className={`stat-change ${rsi.val < 30 ? 'positive' : rsi.val > 70 ? 'negative' : ''}`}>
-                                            {rsi.sig}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                )}
-                
-                <div className="card">
-                    <div className="card-header">Quick Start</div>
-                    <div style={{display: 'flex', gap: '0.5rem', flexWrap: 'wrap'}}>
-                        {['BTC-USD', 'ETH-USD', 'SOL-USD', 'DOGE-USD'].map(s => (
-                            <button key={s} className="btn-sm" onClick={() => { setSym(s); setTimeout(search, 100); }}>
-                                {s}
-                            </button>
-                        ))}
                     </div>
                 </div>
-            </div>
-        );
+            `;
+        }
+        document.getElementById('alertsList').innerHTML = html;
     }
     
-    function Alerts({ alerts }) {
-        return (
-            <div className="card">
-                <div className="card-header">Trading Alerts</div>
-                {alerts.length > 0 ? alerts.map(a => (
-                    <div key={a.id} className="alert alert-info">
-                        <strong>{a.sym}</strong> - {a.msg}
-                        <div style={{fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.5rem'}}>
-                            Confidence: {a.conf}% • {a.time}
-                        </div>
-                    </div>
-                )) : (
-                    <div style={{textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)'}}>
-                        No alerts yet
-                    </div>
-                )}
-            </div>
-        );
-    }
-    
-    ReactDOM.render(<App />, document.getElementById('root'));
+    console.log('App loaded successfully - NO REACT, pure JavaScript');
 </script>
 ```
 
