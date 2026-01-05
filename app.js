@@ -5,16 +5,16 @@ let currentChart = null;
 
 async function fetchPrice(symbol) {
     const basePrices = {
-        'AAPL': 225 + Math.random() * 25,
-        'MSFT': 415 + Math.random() * 25,
-        'GOOGL': 170 + Math.random() * 20,
-        'AMZN': 185 + Math.random() * 20,
-        'TSLA': 230 + Math.random() * 50,
-        'NVDA': 120 + Math.random() * 25,
-        'META': 510 + Math.random() * 30,
-        'GME': 25 + Math.random() * 15,
-        'SPY': 530 + Math.random() * 20,
-        'QQQ': 460 + Math.random() * 20,
+        'AAPL': 226 + Math.random() * 25,
+        'MSFT': 416 + Math.random() * 25,
+        'GOOGL': 171 + Math.random() * 20,
+        'AMZN': 186 + Math.random() * 20,
+        'TSLA': 231 + Math.random() * 50,
+        'NVDA': 121 + Math.random() * 25,
+        'META': 511 + Math.random() * 30,
+        'GME': 20.62 + Math.random() * 2, // Updated to accurate base price with small variation
+        'SPY': 531 + Math.random() * 20,
+        'QQQ': 461 + Math.random() * 20,
         'BTC-USD': 65000 + Math.random() * 15000,
         'ETH-USD': 3500 + Math.random() * 1000,
     };
