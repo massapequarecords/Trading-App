@@ -6,7 +6,6 @@
     <title>MaxPain Pro - Ultimate AI Trading</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
-        /* Your original CSS is unchanged – paste the full <style> block from your index.html here */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
@@ -14,11 +13,137 @@
             color: #e8eaed; 
             line-height: 1.6; 
         }
-        /* ... (all the rest of your CSS exactly as before) */
+        .header { 
+            background: linear-gradient(135deg, #141824, #1a1f2e);
+            border-bottom: 1px solid #2a2f3a; 
+            padding: 1rem 2rem; 
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            background: linear-gradient(135deg, #00ff88, #0099ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .nav { 
+            display: flex; 
+            gap: 0.5rem; 
+            flex-wrap: wrap;
+        }
+        .nav-btn { 
+            padding: 0.6rem 1.2rem; 
+            border: none; 
+            background: #1a1f2e;
+            color: #a0a4a8; 
+            font-size: 0.85rem; 
+            cursor: pointer; 
+            border-radius: 8px;
+            transition: 0.3s; 
+            font-family: inherit;
+        }
+        .nav-btn:hover { background: #2a2f3a; color: #e8eaed; }
+        .nav-btn.active { 
+            background: linear-gradient(135deg, #00ff88, #0099ff);
+            color: #0a0e17; 
+            font-weight: 600; 
+        }
+        .content { padding: 1.5rem; max-width: 1800px; margin: 0 auto; }
+        .card { 
+            background: #141824; 
+            border: 1px solid #2a2f3a;
+            border-radius: 12px; 
+            padding: 1.5rem; 
+            margin-bottom: 1.5rem; 
+        }
+        .card-header {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #2a2f3a;
+        }
+        .search { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .input { 
+            flex: 1; 
+            min-width: 200px; 
+            padding: 0.8rem 1.2rem; 
+            background: #1a1f2e;
+            border: 2px solid #2a2f3a; 
+            border-radius: 10px; 
+            color: #e8eaed;
+            font-size: 0.95rem; 
+            font-family: inherit;
+        }
+        .input:focus { outline: none; border-color: #00ff88; }
+        .btn { 
+            padding: 0.8rem 1.5rem; 
+            border: none; 
+            border-radius: 10px; 
+            font-size: 0.95rem;
+            font-weight: 600; 
+            cursor: pointer; 
+            background: linear-gradient(135deg, #00ff88, #0099ff);
+            color: #0a0e17; 
+            transition: 0.3s;
+            font-family: inherit;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-sm { 
+            padding: 0.5rem 1rem; 
+            font-size: 0.8rem; 
+            background: #1a1f2e;
+            color: #e8eaed; 
+            border: 1px solid #2a2f3a; 
+        }
+        .btn-sm:hover { background: #2a2f3a; transform: none; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat { 
+            background: linear-gradient(135deg, #1a1f2e, #141824);
+            padding: 1.2rem; 
+            border-radius: 10px; 
+            border: 1px solid #2a2f3a;
+            text-align: center; 
+        }
+        .stat-label { font-size: 0.8rem; color: #a0a4a8; margin-bottom: 0.4rem; font-weight: 500; }
+        .stat-value { font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0; }
+        .stat-change { font-size: 0.85rem; margin-top: 0.4rem; font-weight: 600; }
+        .positive { color: #00ff88; }
+        .negative { color: #ff3366; }
+        .neutral { color: #a0a4a8; }
+        .alert { padding: 1rem 1.5rem; border-radius: 10px; margin-bottom: 1rem; }
+        .alert-success { background: rgba(0, 255, 136, 0.1); border: 1px solid rgba(0, 255, 136, 0.3); }
+        .alert-error { background: rgba(255, 51, 102, 0.1); border: 1px solid rgba(255, 51, 102, 0.3); }
+        .loading { display: flex; justify-content: center; align-items: center; padding: 3rem; flex-direction: column; gap: 1rem; }
+        .spinner { width: 50px; height: 50px; border: 3px solid #2a2f3a; border-top-color: #00ff88; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
+        .badge { display: inline-block; padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; }
+        .badge-bull { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
+        .badge-bear { background: rgba(255, 51, 102, 0.2); color: #ff3366; }
+        .chart-container { position: relative; height: 400px; background: #1a1f2e; border-radius: 10px; padding: 1rem; margin: 1rem 0; }
+        .indicator-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+        .indicator-card { background: #1a1f2e; border: 1px solid #2a2f3a; border-radius: 10px; padding: 1rem; }
+        .indicator-header { font-weight: 600; margin-bottom: 0.5rem; color: #00ff88; }
+        .indicator-value { font-size: 1.3rem; font-weight: 700; margin: 0.3rem 0; }
+        .ai-insight { background: linear-gradient(135deg, rgba(0, 255, 136, 0.08), rgba(0, 153, 255, 0.08)); border: 1px solid rgba(0, 255, 136, 0.3); border-radius: 12px; padding: 1.5rem; margin: 1rem 0; }
+        .ai-header { font-weight: 700; font-size: 1.1rem; color: #00ff88; margin-bottom: 1rem; }
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; overflow-x: auto; flex-wrap: wrap; }
+        .tab-btn { padding: 0.6rem 1.2rem; background: #1a1f2e; border: 1px solid #2a2f3a; color: #a0a4a8; cursor: pointer; border-radius: 8px; font-size: 0.85rem; white-space: nowrap; transition: 0.3s; font-family: inherit; }
+        .tab-btn:hover { background: #2a2f3a; }
+        .tab-btn.active { background: linear-gradient(135deg, #00ff88, #0099ff); color: #0a0e17; border: none; font-weight: 600; }
+        @media (max-width: 768px) {
+            .content { padding: 1rem; }
+            .grid { grid-template-columns: repeat(2, 1fr); }
+            .chart-container { height: 300px; }
+        }
     </style>
 </head>
 <body>
-    <!-- Your full HTML structure unchanged, only added id="scanBtn" -->
     <div class="header">
         <div class="logo">MaxPain Pro - Ultimate AI Trading</div>
         <div class="nav">
@@ -33,11 +158,37 @@
     </div>
     
     <div class="content">
-        <!-- All tabs exactly as before -->
         <div id="dashboardTab">
-            <!-- ... -->
+            <div class="search">
+                <input type="text" class="input" id="symInput" placeholder="Enter ticker (AAPL, GME, TSLA, SPY)" onkeypress="if(event.key==='Enter')search()">
+                <button class="btn" onclick="search()">Analyze with AI</button>
+            </div>
+            <div id="errorBox"></div>
+            <div id="loadingBox" class="hidden"><div class="loading"><div class="spinner"></div><div>Analyzing with AI...</div></div></div>
+            <div id="resultsBox"></div>
+            <div class="card">
+                <div class="card-header">Quick Start</div>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button class="btn-sm" onclick="quickSearch('AAPL')">AAPL</button>
+                    <button class="btn-sm" onclick="quickSearch('MSFT')">MSFT</button>
+                    <button class="btn-sm" onclick="quickSearch('GOOGL')">GOOGL</button>
+                    <button class="btn-sm" onclick="quickSearch('GME')">GME</button>
+                    <button class="btn-sm" onclick="quickSearch('TSLA')">TSLA</button>
+                    <button class="btn-sm" onclick="quickSearch('NVDA')">NVDA</button>
+                    <button class="btn-sm" onclick="quickSearch('SPY')">SPY</button>
+                    <button class="btn-sm" onclick="quickSearch('QQQ')">QQQ</button>
+                </div>
+            </div>
         </div>
-        <!-- Other tabs ... -->
+        
+        <div id="advancedTab" class="hidden">
+            <div class="search">
+                <input type="text" class="input" id="advSymInput" placeholder="Enter ticker for deep analysis" onkeypress="if(event.key==='Enter')advancedAnalysis()">
+                <button class="btn" onclick="advancedAnalysis()">Deep AI Analysis</button>
+            </div>
+            <div id="advancedResults"></div>
+        </div>
+        
         <div id="scannerTab" class="hidden">
             <div class="card">
                 <div class="card-header">Max Pain Scanner - Find Best Opportunities</div>
@@ -45,7 +196,37 @@
                 <div id="scannerResults"></div>
             </div>
         </div>
-        <!-- Rest unchanged -->
+        
+        <div id="fractalsTab" class="hidden">
+            <div class="search">
+                <input type="text" class="input" id="fractalInput" placeholder="Enter ticker for fractal analysis" onkeypress="if(event.key==='Enter')analyzeFractals()">
+                <button class="btn" onclick="analyzeFractals()">Find Historical Fractals</button>
+            </div>
+            <div id="fractalResults"></div>
+        </div>
+        
+        <div id="chartsTab" class="hidden">
+            <div class="search">
+                <input type="text" class="input" id="chartInput" placeholder="Enter ticker" onkeypress="if(event.key==='Enter')loadChart()">
+                <button class="btn" onclick="loadChart()">Load Interactive Chart</button>
+            </div>
+            <div id="chartResults"></div>
+        </div>
+        
+        <div id="cryptoTab" class="hidden">
+            <div class="search">
+                <input type="text" class="input" id="cryptoInput" placeholder="Enter crypto (BTC-USD, ETH-USD)" value="BTC-USD" onkeypress="if(event.key==='Enter')searchCrypto()">
+                <button class="btn" onclick="searchCrypto()">Analyze Crypto</button>
+            </div>
+            <div id="cryptoResults"></div>
+        </div>
+        
+        <div id="alertsTab" class="hidden">
+            <div class="card">
+                <div class="card-header">Trading Alerts</div>
+                <div id="alertsList"><div style="text-align: center; padding: 2rem; color: #a0a4a8;">No alerts yet</div></div>
+            </div>
+        </div>
     </div>
 
     <script src="indicators.js"></script>
