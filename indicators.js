@@ -1,4 +1,4 @@
-// indicators.js - Fixed and improved indicators
+// indicators.js - Pure indicators and generators (no dependencies on app functions)
 
 function calcRSI(prices, period = 14) {
     if (prices.length < period + 1) return { val: 50, sig: 'NEUTRAL' };
@@ -20,7 +20,7 @@ function calcRSI(prices, period = 14) {
 }
 
 function calcEMA(prices, period) {
-    if (prices.length < period) return prices[prices.length - 1];
+    if (prices.length < period) return prices[prices.length - 1] || 0;
     const multiplier = 2 / (period + 1);
     let ema = prices.slice(0, period).reduce((a, b) => a + b, 0) / period;
     for (let i = period; i < prices.length; i++) {
@@ -69,7 +69,6 @@ function detectPatterns(prices) {
     const len = prices.length;
     if (len < 10) return patterns;
 
-    // Head & Shoulders (bearish)
     const recent = prices.slice(-7);
     if (recent.length === 7) {
         const [p1, p2, p3, p4, p5, p6, p7] = recent;
@@ -85,7 +84,6 @@ function detectPatterns(prices) {
         }
     }
 
-    // Double Bottom (bullish)
     const lows = prices.slice(-15).sort((a, b) => a - b);
     if (lows.length >= 2 && Math.abs(lows[0] - lows[1]) / lows[0] < 0.04) {
         patterns.push({
@@ -98,7 +96,6 @@ function detectPatterns(prices) {
         });
     }
 
-    // Uptrend continuation
     if (prices[len-1] > prices[len-5] && prices[len-5] > prices[len-10]) {
         patterns.push({
             name: 'Uptrend Continuation',
