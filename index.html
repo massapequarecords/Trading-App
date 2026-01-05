@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,6 +6,7 @@
     <title>MaxPain Pro - Ultimate AI Trading</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
+        /* Your existing CSS unchanged */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
@@ -157,84 +157,81 @@
             <button class="nav-btn" onclick="showTab('alerts')">Alerts <span id="alertCount">(0)</span></button>
         </div>
     </div>
-
-```
-<div class="content">
-    <div id="dashboardTab">
-        <div class="search">
-            <input type="text" class="input" id="symInput" placeholder="Enter ticker (AAPL, GME, TSLA, SPY)" onkeypress="if(event.key==='Enter')search()">
-            <button class="btn" onclick="search()">Analyze with AI</button>
+    
+    <div class="content">
+        <div id="dashboardTab">
+            <div class="search">
+                <input type="text" class="input" id="symInput" placeholder="Enter ticker (AAPL, GME, TSLA, SPY)" onkeypress="if(event.key==='Enter')search()">
+                <button class="btn" onclick="search()">Analyze with AI</button>
+            </div>
+            <div id="errorBox"></div>
+            <div id="loadingBox" class="hidden"><div class="loading"><div class="spinner"></div><div>Analyzing with AI...</div></div></div>
+            <div id="resultsBox"></div>
+            <div class="card">
+                <div class="card-header">Quick Start</div>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button class="btn-sm" onclick="quickSearch('AAPL')">AAPL</button>
+                    <button class="btn-sm" onclick="quickSearch('MSFT')">MSFT</button>
+                    <button class="btn-sm" onclick="quickSearch('GOOGL')">GOOGL</button>
+                    <button class="btn-sm" onclick="quickSearch('GME')">GME</button>
+                    <button class="btn-sm" onclick="quickSearch('TSLA')">TSLA</button>
+                    <button class="btn-sm" onclick="quickSearch('NVDA')">NVDA</button>
+                    <button class="btn-sm" onclick="quickSearch('SPY')">SPY</button>
+                    <button class="btn-sm" onclick="quickSearch('QQQ')">QQQ</button>
+                </div>
+            </div>
         </div>
-        <div id="errorBox"></div>
-        <div id="loadingBox" class="hidden"><div class="loading"><div class="spinner"></div><div>Analyzing with AI...</div></div></div>
-        <div id="resultsBox"></div>
-        <div class="card">
-            <div class="card-header">Quick Start</div>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                <button class="btn-sm" onclick="quickSearch('AAPL')">AAPL</button>
-                <button class="btn-sm" onclick="quickSearch('MSFT')">MSFT</button>
-                <button class="btn-sm" onclick="quickSearch('GOOGL')">GOOGL</button>
-                <button class="btn-sm" onclick="quickSearch('GME')">GME</button>
-                <button class="btn-sm" onclick="quickSearch('TSLA')">TSLA</button>
-                <button class="btn-sm" onclick="quickSearch('NVDA')">NVDA</button>
-                <button class="btn-sm" onclick="quickSearch('SPY')">SPY</button>
-                <button class="btn-sm" onclick="quickSearch('QQQ')">QQQ</button>
+        
+        <div id="advancedTab" class="hidden">
+            <div class="search">
+                <input type="text" class="input" id="advSymInput" placeholder="Enter ticker for deep analysis" onkeypress="if(event.key==='Enter')advancedAnalysis()">
+                <button class="btn" onclick="advancedAnalysis()">Deep AI Analysis</button>
+            </div>
+            <div id="advancedResults"></div>
+        </div>
+        
+        <div id="scannerTab" class="hidden">
+            <div class="card">
+                <div class="card-header">Max Pain Scanner - Find Best Opportunities</div>
+                <button class="btn" id="scanBtn" onclick="runScanner()">Scan Market for Max Pain Opportunities</button>
+                <div id="scannerResults"></div>
+            </div>
+        </div>
+        
+        <div id="fractalsTab" class="hidden">
+            <div class="search">
+                <input type="text" class="input" id="fractalInput" placeholder="Enter ticker for fractal analysis" onkeypress="if(event.key==='Enter')analyzeFractals()">
+                <button class="btn" onclick="analyzeFractals()">Find Historical Fractals</button>
+            </div>
+            <div id="fractalResults"></div>
+        </div>
+        
+        <div id="chartsTab" class="hidden">
+            <div class="search">
+                <input type="text" class="input" id="chartInput" placeholder="Enter ticker" onkeypress="if(event.key==='Enter')loadChart()">
+                <button class="btn" onclick="loadChart()">Load Interactive Chart</button>
+            </div>
+            <div id="chartResults"></div>
+        </div>
+        
+        <div id="cryptoTab" class="hidden">
+            <div class="search">
+                <input type="text" class="input" id="cryptoInput" placeholder="Enter crypto (BTC-USD, ETH-USD)" value="BTC-USD" onkeypress="if(event.key==='Enter')searchCrypto()">
+                <button class="btn" onclick="searchCrypto()">Analyze Crypto</button>
+            </div>
+            <div id="cryptoResults"></div>
+        </div>
+        
+        <div id="alertsTab" class="hidden">
+            <div class="card">
+                <div class="card-header">Trading Alerts</div>
+                <div id="alertsList"><div style="text-align: center; padding: 2rem; color: #a0a4a8;">No alerts yet</div></div>
             </div>
         </div>
     </div>
-    
-    <div id="advancedTab" class="hidden">
-        <div class="search">
-            <input type="text" class="input" id="advSymInput" placeholder="Enter ticker for deep analysis" onkeypress="if(event.key==='Enter')advancedAnalysis()">
-            <button class="btn" onclick="advancedAnalysis()">Deep AI Analysis</button>
-        </div>
-        <div id="advancedResults"></div>
-    </div>
-    
-    <div id="scannerTab" class="hidden">
-        <div class="card">
-            <div class="card-header">Max Pain Scanner - Find Best Opportunities</div>
-            <button class="btn" onclick="runScanner()">Scan Market for Max Pain Opportunities</button>
-            <div id="scannerResults"></div>
-        </div>
-    </div>
-    
-    <div id="fractalsTab" class="hidden">
-        <div class="search">
-            <input type="text" class="input" id="fractalInput" placeholder="Enter ticker for fractal analysis" onkeypress="if(event.key==='Enter')analyzeFractals()">
-            <button class="btn" onclick="analyzeFractals()">Find Historical Fractals</button>
-        </div>
-        <div id="fractalResults"></div>
-    </div>
-    
-    <div id="chartsTab" class="hidden">
-        <div class="search">
-            <input type="text" class="input" id="chartInput" placeholder="Enter ticker" onkeypress="if(event.key==='Enter')loadChart()">
-            <button class="btn" onclick="loadChart()">Load Interactive Chart</button>
-        </div>
-        <div id="chartResults"></div>
-    </div>
-    
-    <div id="cryptoTab" class="hidden">
-        <div class="search">
-            <input type="text" class="input" id="cryptoInput" placeholder="Enter crypto (BTC-USD, ETH-USD)" value="BTC-USD" onkeypress="if(event.key==='Enter')searchCrypto()">
-            <button class="btn" onclick="searchCrypto()">Analyze Crypto</button>
-        </div>
-        <div id="cryptoResults"></div>
-    </div>
-    
-    <div id="alertsTab" class="hidden">
-        <div class="card">
-            <div class="card-header">Trading Alerts</div>
-            <div id="alertsList"><div style="text-align: center; padding: 2rem; color: #a0a4a8;">No alerts yet</div></div>
-        </div>
-    </div>
-</div>
 
-<script src="indicators.js"></script>
-<script src="advanced-ai.js"></script>
-<script src="app.js"></script>
-```
-
+    <script src="indicators.js"></script>
+    <script src="advanced-ai.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
